@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".UpdateActivity">
+
+
+    <CalendarView android:id="@+id/cal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:firstDayOfWeek="3"
+        android:shownWeekCount="7"
+        android:focusedMonthDateColor="#FF8000"
+        android:selectedWeekBackgroundColor="#9BFFFF"
+        android:weekSeparatorLineColor="#0000FF"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="100dp">
+
+        <EditText
+            android:id="@+id/calorie_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:hint="click"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:numeric="integer"
+            android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/update_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_bg"
+            android:layout_gravity="center"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="10dp"
+            android:padding="10dp"
+            android:text="UPDATE"
+            android:textSize="24dp" />
+
+
+    </LinearLayout>
+
+
+</LinearLayout>
