@@ -17,7 +17,7 @@
             android:layout_weight="1.0"/>
 
         <Button
-            android:id="@+id/btn"
+            android:id="@+id/add_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="24dp"
@@ -25,31 +25,13 @@
 
     </LinearLayout>
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:scrollbars="none"
-        >
+    <ListView
+        android:id="@+id/data_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
 
-        <HorizontalScrollView
-            android:id="@+id/scroll_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbarAlwaysDrawHorizontalTrack="false"
-            android:scrollbars="none">
+    </ListView>
 
-            <LinearLayout
-                android:id="@+id/MyTable"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="9dp"
-                android:orientation="vertical"
-                >
-            </LinearLayout>
-
-        </HorizontalScrollView>
-    </ScrollView>
 
 
 </LinearLayout>
