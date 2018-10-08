@@ -1,8 +1,10 @@
 package com.example.one.calorierecorderdemo;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,9 +13,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 public class SecondActivity extends AppCompatActivity {
@@ -23,7 +29,14 @@ public class SecondActivity extends AppCompatActivity {
     private ListView data_list;
     private Vector<String> entries;
 
+    private String selectText;
+
     SQLiteDatabase db;
+
+
+
+    //定义一个列表集合
+    List<Map<String,Object>> listItems;
 
 
     @Override
@@ -50,24 +63,58 @@ public class SecondActivity extends AppCompatActivity {
         showRecord();
         create_list();
 
-        data_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//        data_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                String item = adapterView.getItemAtPosition(i).toString();
+//                String[] parts = item.split(",");
+//
+//                String calorie=parts[1];
+//                String whereclause = "calorie = ?" + " and date = ?";
+//
+//                db.delete("STUDENT", whereclause, new String[] {parts[1], parts[0]});
+//
+//                showRecord();
+//                create_list();
+//            }
+//        });
+
+
+        listItems=new ArrayList<Map<String, Object>>();
+
+        data_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String item = adapterView.getItemAtPosition(i).toString();
-                String[] parts = item.split(",");
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                //弹出删除确认对话框
+                selectText = (String)parent.getItemAtPosition(position);
+                AlertDialog.Builder builder = new AlertDialog.Builder(SecondActivity.this);
+                builder.setMessage("确定删除这项记录？");
+                builder.setTitle("提示");
 
-                String calorie=parts[1];
-                String whereclause = "calorie = ?" + " and date = ?";
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        int index = Integer.parseInt(selectText.split(":")[0]);
+                        db.execSQL("DELETE FROM " + "DAILY" + " WHERE id=" + index);
+                        Toast.makeText(SecondActivity.this,"success",Toast.LENGTH_SHORT).show();
+                        create_list();
+                    }
+                });
 
-                db.delete("STUDENT", whereclause, new String[] {parts[1], parts[0]});
+                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                showRecord();
-                create_list();
+                    }
+                });
+
+                builder.create().show();
+
+                return false;
             }
         });
 
     }
-
 
     //显示记录
     private void showRecord(){
@@ -79,9 +126,10 @@ public class SecondActivity extends AppCompatActivity {
 
         if (cursor.moveToFirst()) {
             do {
+                String id = cursor.getString(cursor.getColumnIndex("id"));
                 String date = cursor.getString(cursor.getColumnIndex("date"));
                 String calorie = cursor.getString(cursor.getColumnIndex("calorie"));
-                entries.add("" + date + "," + calorie);
+                entries.add(id+":    " + date + ",    " + calorie);
             } while (cursor.moveToNext());
             cursor.close();
         }
@@ -92,6 +140,7 @@ public class SecondActivity extends AppCompatActivity {
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(SecondActivity.this, android.R.layout.simple_list_item_1, entries);
         data_list.setAdapter(adapter);
     }
+
 
 }
 

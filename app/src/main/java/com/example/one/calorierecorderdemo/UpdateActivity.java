@@ -13,6 +13,7 @@ import android.widget.CalendarView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -36,7 +37,6 @@ public class UpdateActivity extends AppCompatActivity {
         calorie_text = (EditText)findViewById(R.id.calorie_text);
 
         initliaze();
-
     }
 
 
@@ -59,6 +59,7 @@ public class UpdateActivity extends AppCompatActivity {
                 values.put("date",dateText);
                 values.put("calorie",calorie_text.getText().toString());
                 db.insert("DAILY",null,values);
+                Toast.makeText(UpdateActivity.this,"添加成功！",Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -66,4 +67,5 @@ public class UpdateActivity extends AppCompatActivity {
     public static SQLiteDatabase getDB(){
         return dbHelper.getWritableDatabase();
     }
+
 }
