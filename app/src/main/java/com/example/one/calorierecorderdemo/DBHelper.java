@@ -10,10 +10,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String DAILY = "Daily";
 
     private static final String CREATE_DAILY_TABLE
-            = "create table " + DAILY + "(id integer primary key autoincrement, date text, calorie integer)";
-
-    private static final String UPDATE_DAILY_TABLE
-            = "alter table " + DAILY + " add age integer";
+            = "create table " + DAILY + "(id integer primary key autoincrement, date DATE, calorie integer)";
 
     public DBHelper(Context context, int version) {
         super(context,DBname,null, version);

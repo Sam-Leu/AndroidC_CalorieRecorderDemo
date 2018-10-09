@@ -1,10 +1,10 @@
 package com.example.one.calorierecorderdemo;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,57 +12,61 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
-
+import java.sql.Date;
 import java.util.Calendar;
 
 
 public class MainActivity extends Activity {
 
+    private static DBHelper dbHelper;
+    SQLiteDatabase db;
+
     private EditText bEditText;
     private EditText eEditText;
+
+    String strMonth = new String();
+    String strDay = new String();
+    String dateText = new String();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        GraphView graph = (GraphView) findViewById(R.id.graph);
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>(new DataPoint[] {
-                new DataPoint(0, 1),
-                new DataPoint(1, 5),
-                new DataPoint(2, 3)
-        });
-        graph.addSeries(series);
+        dbHelper = new DBHelper(this,2);
 
-        Button editBtn = (Button)findViewById(R.id.edit_btn);
+        Button editBtn = (Button) findViewById(R.id.edit_btn);
         editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this,SecondActivity.class);
+                Intent intent = new Intent(MainActivity.this, SecondActivity.class);
                 startActivity(intent);
             }
         });
 
         setBeginDate();
         setEndDate();
-
     }
 
-    public void queryOnClick(View view){
-        if(judge() == false){
-            Toast.makeText(MainActivity.this,"日期有误，请校对！",Toast.LENGTH_LONG).show();
+    //查询点击事件
+    public void queryOnClick(View view) {
+        if (judge() == false) {
+            Toast.makeText(MainActivity.this, "日期有误，请校对！", Toast.LENGTH_LONG).show();
+            return;
         }
+        setGraphView();
     }
 
-    public void editOnClick(View view){
-        Toast.makeText(this,"edit",Toast.LENGTH_LONG).show();
+    //管理点击事件
+    public void editOnClick(View view) {
+        Toast.makeText(this, "edit", Toast.LENGTH_LONG).show();
     }
 
-    public void setBeginDate(){
+    //设置开始时间
+    public void setBeginDate() {
         bEditText = (EditText) findViewById(R.id.begin_text);
         bEditText.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -84,7 +88,8 @@ public class MainActivity extends Activity {
         });
     }
 
-    public void setEndDate(){
+    //设置结束时间
+    public void setEndDate() {
         eEditText = (EditText) findViewById(R.id.end_text);
         eEditText.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -107,12 +112,27 @@ public class MainActivity extends Activity {
 
     }
 
+    //显示开始时间
     protected void showBeginDate() {
         Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                MainActivity.this.bEditText.setText(year + "/" + monthOfYear + "/" + dayOfMonth);
+                if(monthOfYear < 10){
+                    strMonth = "0"+String.valueOf(monthOfYear);
+                }
+                else {
+                    strMonth = String.valueOf(monthOfYear);
+                }
+
+                if(dayOfMonth < 10){
+                    strDay = "0"+String.valueOf(dayOfMonth);
+                }
+                else {
+                    strDay = String.valueOf(dayOfMonth);
+                }
+                dateText = year+"-"+strMonth+"-"+strDay;
+                MainActivity.this.bEditText.setText(dateText);
             }
         },
                 calendar.get(Calendar.YEAR),
@@ -121,12 +141,27 @@ public class MainActivity extends Activity {
         datePickerDialog.show();
     }
 
+    //显示结束时间
     protected void showEndDate() {
         Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(MainActivity.this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                MainActivity.this.eEditText.setText(year + "/" + monthOfYear + "/" + dayOfMonth);
+                if(monthOfYear < 10){
+                    strMonth = "0"+String.valueOf(monthOfYear);
+                }
+                else {
+                    strMonth = String.valueOf(monthOfYear);
+                }
+
+                if(dayOfMonth < 10){
+                    strDay = "0"+String.valueOf(dayOfMonth);
+                }
+                else {
+                    strDay = String.valueOf(dayOfMonth);
+                }
+                dateText = year+"-"+strMonth+"-"+strDay;
+                MainActivity.this.eEditText.setText(dateText);
 
             }
         },
@@ -136,29 +171,60 @@ public class MainActivity extends Activity {
         datePickerDialog.show();
     }
 
-    public boolean judge(){
+    //判断查询时间是否符合前后规律
+    public boolean judge() {
         String begin = bEditText.getText().toString();
         String end = eEditText.getText().toString();
 
-        String[] beginArray = begin.split("/");
-        String[] endArray = end.split("/");
+        String[] beginArray = begin.split("-");
+        String[] endArray = end.split("-");
 
-        if(Integer.parseInt(beginArray[0]) > Integer.parseInt(endArray[0])){
+        if (Integer.parseInt(beginArray[0]) > Integer.parseInt(endArray[0])) {
             return false;
-        }
-        else{
-            if(Integer.parseInt(beginArray[1]) > Integer.parseInt(endArray[1])){
+        } else {
+            if (Integer.parseInt(beginArray[1]) > Integer.parseInt(endArray[1])) {
                 return false;
-            }
-            else {
-                if(Integer.parseInt(beginArray[2]) >= Integer.parseInt(endArray[2])) {
+            } else {
+                if (Integer.parseInt(beginArray[2]) >= Integer.parseInt(endArray[2])) {
                     return false;
-                }
-                else {
+                } else {
                     return true;
                 }
             }
         }
+    }
+
+    public void setGraphView() {
+        db = dbHelper.getReadableDatabase();
+
+        GraphView graph = (GraphView) findViewById(R.id.graph);
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
+        DataPoint dp = new DataPoint(0, 0);
+        series.appendData(dp, true, 100, true);
+
+        String[] str = new String[4];
+
+        String sql = "select * from DAILY order by date ASC";
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                String date = cursor.getString(cursor.getColumnIndex("date"));
+                String calorie = cursor.getString(cursor.getColumnIndex("calorie"));
+
+                str[0] = date.split("-")[0];
+                str[1] = date.split("-")[1];
+                str[2] = date.split("-")[2];
+
+                Date x = new Date(Integer.parseInt(str[0])-1900,Integer.parseInt(str[1])-1,Integer.parseInt(str[2]));
+                int y = Integer.parseInt(calorie);
+
+                DataPoint dp1 = new DataPoint(x, y);
+                series.appendData(dp1, true, 100, true);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        graph.addSeries(series);
     }
 }
 

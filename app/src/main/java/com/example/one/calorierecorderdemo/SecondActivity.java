@@ -11,12 +11,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,26 +21,19 @@ import java.util.Vector;
 public class SecondActivity extends AppCompatActivity {
 
     private static DBHelper dbHelper;
+    SQLiteDatabase db;
 
     private ListView data_list;
     private Vector<String> entries;
-
     private String selectText;
-
-    SQLiteDatabase db;
-
-
 
     //定义一个列表集合
     List<Map<String,Object>> listItems;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
-
-
 
         Button addBtn = (Button)findViewById(R.id.add_btn);
         addBtn.setOnClickListener(new View.OnClickListener() {
@@ -63,23 +52,6 @@ public class SecondActivity extends AppCompatActivity {
         showRecord();
         create_list();
 
-//        data_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                String item = adapterView.getItemAtPosition(i).toString();
-//                String[] parts = item.split(",");
-//
-//                String calorie=parts[1];
-//                String whereclause = "calorie = ?" + " and date = ?";
-//
-//                db.delete("STUDENT", whereclause, new String[] {parts[1], parts[0]});
-//
-//                showRecord();
-//                create_list();
-//            }
-//        });
-
-
         listItems=new ArrayList<Map<String, Object>>();
 
         data_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -96,7 +68,8 @@ public class SecondActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         int index = Integer.parseInt(selectText.split(":")[0]);
                         db.execSQL("DELETE FROM " + "DAILY" + " WHERE id=" + index);
-                        Toast.makeText(SecondActivity.this,"success",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SecondActivity.this,"删除成功！",Toast.LENGTH_SHORT).show();
+                        showRecord();
                         create_list();
                     }
                 });
@@ -109,11 +82,17 @@ public class SecondActivity extends AppCompatActivity {
                 });
 
                 builder.create().show();
-
                 return false;
             }
         });
+    }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showRecord();
+        create_list();
     }
 
     //显示记录
@@ -121,7 +100,7 @@ public class SecondActivity extends AppCompatActivity {
         entries.clear();
         db = dbHelper.getWritableDatabase();
 
-        String sql = "select * from DAILY";
+        String sql = "select * from DAILY order by date ASC";
         Cursor cursor = db.rawQuery(sql,null);
 
         if (cursor.moveToFirst()) {
@@ -136,12 +115,10 @@ public class SecondActivity extends AppCompatActivity {
     }
 
     //加载刷新列表
-    private void create_list() {
+    public void create_list() {
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(SecondActivity.this, android.R.layout.simple_list_item_1, entries);
         data_list.setAdapter(adapter);
     }
-
-
 }
 
 
