@@ -76,5 +76,4 @@ public class UpdateActivity extends AppCompatActivity {
     public static SQLiteDatabase getDB(){
         return dbHelper.getWritableDatabase();
     }
-
 }

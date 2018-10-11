@@ -119,6 +119,7 @@ public class SecondActivity extends AppCompatActivity {
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(SecondActivity.this, android.R.layout.simple_list_item_1, entries);
         data_list.setAdapter(adapter);
     }
+
 }
 
 

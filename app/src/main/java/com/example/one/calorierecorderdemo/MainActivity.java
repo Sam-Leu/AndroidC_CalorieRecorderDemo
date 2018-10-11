@@ -29,7 +29,14 @@ public class MainActivity extends Activity {
 
     String strMonth = new String();
     String strDay = new String();
+    String date = new String();
     String dateText = new String();
+    String[] str = new String[4];
+    String[] bstr = new String[4];
+    String[] estr = new String[4];
+
+    int beginDate = 0;
+    int endDate = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,13 +203,21 @@ public class MainActivity extends Activity {
 
     public void setGraphView() {
         db = dbHelper.getReadableDatabase();
+        bEditText = (EditText) findViewById(R.id.begin_text);
+        eEditText = (EditText) findViewById(R.id.end_text);
+
+        bstr[0] = bEditText.getText().toString().split("-")[0];
+        bstr[1] = bEditText.getText().toString().split("-")[1];
+        bstr[2] = bEditText.getText().toString().split("-")[2];
+        estr[0] = eEditText.getText().toString().split("-")[0];
+        estr[1] = eEditText.getText().toString().split("-")[1];
+        estr[2] = eEditText.getText().toString().split("-")[2];
+
+        beginDate = Integer.parseInt(bstr[0].substring(2) + bstr[1] + bstr[2]);
+        endDate = Integer.parseInt(estr[0].substring(2) + estr[1] + estr[2]);
 
         GraphView graph = (GraphView) findViewById(R.id.graph);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
-        DataPoint dp = new DataPoint(0, 0);
-        series.appendData(dp, true, 100, true);
-
-        String[] str = new String[4];
 
         String sql = "select * from DAILY order by date ASC";
         Cursor cursor = db.rawQuery(sql, null);
@@ -216,15 +231,25 @@ public class MainActivity extends Activity {
                 str[1] = date.split("-")[1];
                 str[2] = date.split("-")[2];
 
-                Date x = new Date(Integer.parseInt(str[0])-1900,Integer.parseInt(str[1])-1,Integer.parseInt(str[2]));
+                date = str[0].substring(2)+str[1]+str[2];
+                int x = Integer.parseInt(date);
                 int y = Integer.parseInt(calorie);
 
-                DataPoint dp1 = new DataPoint(x, y);
-                series.appendData(dp1, true, 100, true);
+                if(x > beginDate && x < endDate){
+                    DataPoint dp = new DataPoint(x, y);
+                    series.appendData(dp, true, 100, true);
+                }
+
             } while (cursor.moveToNext());
             cursor.close();
         }
+
         graph.addSeries(series);
     }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//    }
 }
 
